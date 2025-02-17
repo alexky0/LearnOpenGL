@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Object.h"
 #include "PointLight.h"
+#include "DirLight.h"
 
 using namespace std;
 
@@ -68,6 +69,7 @@ int main()
     Object backpack(BACKPACK_PATH, shader);
 
     PointLight light(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1.0f, 0.09f, 0.032f);
+    DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.98f, 0.84f, 0.11f));
 
     while (!glfwWindowShouldClose(window))
     {
@@ -82,6 +84,7 @@ int main()
 
         shader.Bind();
         light.UseLight(shader, "light");
+        dirLight.UseLight(shader, "dirLight");
         shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
 

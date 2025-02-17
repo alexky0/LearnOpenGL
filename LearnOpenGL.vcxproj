@@ -150,6 +150,8 @@
     <ClCompile Include="..\..\..\cpp\LearnOpenGL\glad.c" />
     <ClCompile Include="..\..\..\cpp\LearnOpenGL\stb.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DirLight.cpp" />
+    <ClCompile Include="DirLight.h" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
