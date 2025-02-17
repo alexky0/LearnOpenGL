@@ -14,11 +14,11 @@ using namespace std;
 class Shader
 {
 private:
+	int ID;
 	mutable unordered_map<string, GLint> uniformLocations;
 	int getUniformLocation(const char* name) const;
 	static string get_file_contents(const char* filename);
 public:
-	int ID;
 	Shader(const char* vertFile, const char* fragFile);
 
 	void Bind() const { glUseProgram(ID); }

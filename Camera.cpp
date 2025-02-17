@@ -2,7 +2,6 @@
 
 void Camera::UpdateCameraVectors()
 {
-    glm::vec3 direction;
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -20,7 +19,7 @@ Camera::Camera(int width, int height, glm::vec3 startPosition) :
     front(glm::vec3(0.0f, 0.0f, -1.0f)),
     movementSpeed(2.5f),
     mouseSensitivity(0.1f),
-    fov(45.0f),
+    fov(90.0f),
     firstMouse(true),
     lastX(width / 2.0f),
     lastY(height / 2.0f),
@@ -71,7 +70,7 @@ void Camera::Scroll(float yoffset)
 {
     fov -= yoffset;
     if (fov < 1.0f) fov = 1.0f;
-    if (fov > 45.0f) fov = 45.0f;
+    if (fov > 90.0f) fov = 90.0f;
 }
 
 glm::vec3 Camera::getPosition() const

@@ -25,11 +25,11 @@ struct Texture {
 
 class Mesh {
 private:
-    GLuint vao, vbo, ibo;
+    unsigned int VAO, VBO, EBO;
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
 public:
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-    void Draw(Shader& shader);
+    void Draw(Shader& shader) const;
 };
