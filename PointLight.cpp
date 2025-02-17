@@ -42,7 +42,6 @@ void PointLight::UseLight(Shader& shader, const char* uniformName) const {
 void PointLight::Render(Shader& shader, Camera& camera) const {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
-    shader.Bind();
     shader.setVec3("color", diffuse);
     shader.setMat4fv("model", model);
     camera.Update(shader, "view", "projection");

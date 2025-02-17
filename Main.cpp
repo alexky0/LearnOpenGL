@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "Shader.h"
 #include "Object.h"
 #include "PointLight.h"
 #include "DirLight.h"
@@ -68,8 +67,12 @@ int main()
 
     Object backpack(BACKPACK_PATH, shader);
 
-    PointLight light(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1.0f, 0.09f, 0.032f);
     DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.98f, 0.84f, 0.11f));
+    vector<PointLight> lights = {
+        PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(0.0f, 0.0f, 1.0f), 1.5f, 0.07f, 0.017f),
+        PointLight(glm::vec3(-1.299f, -0.75f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
+        PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.3f, 0.09f, 0.025f),
+    };
 
     while (!glfwWindowShouldClose(window))
     {
@@ -80,10 +83,12 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        light.Render(lightShader, camera);
+        lightShader.Bind();
+        for (PointLight& light : lights) light.Render(lightShader, camera);
 
         shader.Bind();
-        light.UseLight(shader, "light");
+        for (unsigned char i = 0; i < lights.size(); i++) lights[i].UseLight(shader, ("pointLights[" + to_string(i) + "]").c_str());
+        shader.set1i("numPointLights", (int)lights.size());
         dirLight.UseLight(shader, "dirLight");
         shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
