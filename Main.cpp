@@ -1,10 +1,8 @@
 #include <iostream>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "Shader.h"
 #include "Object.h"
+#include "PointLight.h"
 
 using namespace std;
 
@@ -15,7 +13,7 @@ extern "C" {
 
 constexpr const char* BACKPACK_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/backpack/backpack.obj";
 
-constexpr int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
+constexpr unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 float currentTime, lastTime, deltaTime;
 
@@ -49,6 +47,7 @@ static GLFWwindow* WindowInit()
         return nullptr;
     }
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
@@ -64,8 +63,11 @@ int main()
     if (!window) return -1;
 
     Shader shader("default.vert", "default.frag");
+    Shader lightShader("light.vert", "light.frag");
 
     Object backpack(BACKPACK_PATH, shader);
+
+    PointLight light(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1.0f, 0.09f, 0.032f);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -74,10 +76,13 @@ int main()
         lastTime = currentTime;
         camera.Keyboard(window, deltaTime);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        light.Render(lightShader, camera);
+
         shader.Bind();
+        light.UseLight(shader, "light");
+        shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
 
         glfwSwapBuffers(window);
