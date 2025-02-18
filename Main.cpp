@@ -74,6 +74,11 @@ int main()
 
     PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag", samples, gamma);
 
+    DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.1f, 0.1f, 0.1f));
+    vector<PointLight> lights = {
+        PointLight(glm::vec3(0.0f, 1.0f, 0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.2f, 0.08f, 0.02f),
+    };
+
     Shader shader("default.vert", "default.frag");
     shader.Geometry("default.geom");
     Shader lightShader("light.vert", "light.frag");
@@ -82,13 +87,6 @@ int main()
     Object myWindow(WINDOW_PATH, shader);
     myWindow.Rotate(90, 0, 0);
     myWindow.Move(0, 0, 1);
-
-    DirLight dirLight(glm::vec3(0.2f, 1.0f, 0.3f), glm::vec3(1.0f, 1.0f, 1.0f));
-    vector<PointLight> lights = {
-        PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 0.0f, 1.0f), 1.2f, 0.08f, 0.02f),
-        PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
-        PointLight(glm::vec3(-1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.2f, 0.08f, 0.02f),
-    };
 
     Skybox skybox("skybox", "skybox.vert", "skybox.frag");
 

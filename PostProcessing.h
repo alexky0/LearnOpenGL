@@ -17,11 +17,13 @@ static const float rectangleVertices[] =
 
 class PostProcessing
 {
-public:
+private:
     Shader shader;
-	unsigned int MSAA, textureMSAA, post, texturePost, RBO, VAO, VBO, width, height;
+    unsigned int MSAA, textureMSAA, post, texturePost, RBO, VAO, VBO, width, height;
     float gamma;
+public:
     PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag, unsigned int samples, float gamma);
+
     void Setup() const;
     void Draw() const;
 };

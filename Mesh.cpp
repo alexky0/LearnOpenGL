@@ -28,16 +28,25 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
 
 void Mesh::Draw(Shader& shader) const
 {
-	for (unsigned int i = 0; i < textures.size(); i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		string name = textures[i].type;
-		shader.set1i(("material." + name).c_str(), i);
-		shader.set1f("material.shininess", 32.0f);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
-	}
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+    for (unsigned int i = 0; i < textures.size(); i++)
+    {
+        string name = textures[i].type;
+
+        if (name == "texture_diffuse") {
+            glActiveTexture(GL_TEXTURE0 + 0);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            shader.set1i(("material.diffuse"), 0);
+        }
+        else if (name == "texture_specular") {
+			glActiveTexture(GL_TEXTURE0 + 1);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            shader.set1i(("material.specular"), 1);
+        }
+    }
+
+    shader.set1f("material.shininess", 32.0f);
+
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }

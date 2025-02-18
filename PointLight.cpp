@@ -12,7 +12,7 @@ constexpr unsigned int lightIndices[] = {
 static unsigned int VAO = 0, VBO = 0, EBO = 0;
 
 PointLight::PointLight(glm::vec3 pos, glm::vec3 col, float c, float l, float q)
-    : position(pos), ambient(col * 0.2f), diffuse(col), specular(glm::mix(col, glm::vec3(1.0f), 0.5f)), constant(c), linear(l), quadratic(q)
+    : position(pos), ambient(col * 0.2f), diffuse(col), specular(glm::mix(col, glm::vec3(1.0f), 0.3f)), constant(c), linear(l), quadratic(q)
 {
     if (VAO == 0) {
         glGenVertexArrays(1, &VAO);
