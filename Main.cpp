@@ -16,6 +16,7 @@ constexpr const char* BACKPACK_PATH = "C:/Users/Alex/Downloads/Code/github/perso
 constexpr unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 float currentTime, lastTime, deltaTime;
+unsigned int frameCount = 0;
 
 static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); }
 static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos) { camera.Mouse((float)xpos, (float)ypos); }
@@ -49,6 +50,9 @@ static GLFWwindow* WindowInit()
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CCW);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
     glfwSetCursorPosCallback(window, CursorPosCallback);
@@ -78,8 +82,15 @@ int main()
     {
         currentTime = static_cast<float>(glfwGetTime());
         deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
-        camera.Keyboard(window, deltaTime);
+        frameCount++;
+        if (deltaTime >= 1.0 / 30.0)
+        {
+            string title = "LearnOpenGL - " + to_string((1.0 / deltaTime) * frameCount) + "FPS - " + to_string((deltaTime / frameCount) * 1000) + "ms";
+            glfwSetWindowTitle(window, title.c_str());
+            lastTime = currentTime;
+            frameCount = 0;
+            camera.Keyboard(window, deltaTime);
+        }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
