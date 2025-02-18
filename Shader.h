@@ -19,7 +19,8 @@ private:
 	int getUniformLocation(const char* name) const;
 	static string get_file_contents(const char* filename);
 public:
-	Shader(const char* vertFile, const char* fragFile);
+	Shader(const char* vert, const char* frag);
+	void Geometry(const char* geo) const;
 
 	void Bind() const { glUseProgram(ID); }
 	void Unbind() const { glUseProgram(0); }

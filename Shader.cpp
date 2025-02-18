@@ -15,10 +15,10 @@ string Shader::get_file_contents(const char* filename)
 	return string(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
 }
 
-Shader::Shader(const char* vertFile, const char* fragFile)
+Shader::Shader(const char* vert, const char* frag)
 {
-	string vertexSourceCode = get_file_contents(vertFile);
-	string fragmentSourceCode = get_file_contents(fragFile);
+	string vertexSourceCode = get_file_contents(vert);
+	string fragmentSourceCode = get_file_contents(frag);
 	const char* vertexSource = vertexSourceCode.c_str();
 	const char* fragmentSource = fragmentSourceCode.c_str();
 
@@ -36,4 +36,17 @@ Shader::Shader(const char* vertFile, const char* fragFile)
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+}
+
+void Shader::Geometry(const char* geo) const
+{
+	string geometrySourceCode = get_file_contents(geo);
+	const char* geometrySource = geometrySourceCode.c_str();
+
+	int geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(geometryShader, 1, &geometrySource, NULL);
+	glCompileShader(geometryShader);
+	glAttachShader(ID, geometryShader);
+	glLinkProgram(ID);
+	glDeleteShader(geometryShader);
 }

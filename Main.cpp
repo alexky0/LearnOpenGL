@@ -72,6 +72,7 @@ int main()
     PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag");
 
     Shader shader("default.vert", "default.frag");
+    shader.Geometry("default.geom");
     Shader lightShader("light.vert", "light.frag");
 
     Object backpack(BACKPACK_PATH, shader);

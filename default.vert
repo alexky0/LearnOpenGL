@@ -7,14 +7,19 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-out vec3 FragPos;
-out vec3 Normal;
-out vec2 TexCoords;
+out DATA
+{
+	vec3 FragPos;
+	vec3 Normal;
+	vec2 TexCoords;
+	mat4 projection;
+} data_out;
 
 void main()
 {
-    FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal;  
-    TexCoords = aTexCoords;
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    data_out.FragPos = vec3(model * vec4(aPos, 1.0));
+    data_out.Normal = mat3(transpose(inverse(model))) * aNormal;  
+    data_out.TexCoords = aTexCoords;
+	data_out.projection = projection;
+    gl_Position = view * model * vec4(aPos, 1.0);
 }
