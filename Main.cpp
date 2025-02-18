@@ -1,8 +1,7 @@
-#include <iostream>
-
 #include "Object.h"
 #include "PointLight.h"
 #include "DirLight.h"
+#include "PostProcessing.h"
 
 using namespace std;
 
@@ -69,6 +68,8 @@ int main()
     GLFWwindow* window = WindowInit();
     if (!window) return -1;
 
+    PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag");
+
     Shader shader("default.vert", "default.frag");
     Shader lightShader("light.vert", "light.frag");
 
@@ -98,20 +99,22 @@ int main()
         }
         camera.Keyboard(window, deltaTime);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        post.Setup();
 
         lightShader.Bind();
         for (PointLight& light : lights) light.Render(lightShader, camera);
 
         shader.Bind();
+        dirLight.UseLight(shader, "dirLight");
         for (unsigned char i = 0; i < lights.size(); i++) lights[i].UseLight(shader, ("pointLights[" + to_string(i) + "]").c_str());
         shader.set1i("numPointLights", (int)lights.size());
-        dirLight.UseLight(shader, "dirLight");
         shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
         glDisable(GL_CULL_FACE);
         myWindow.Update(camera);
         glEnable(GL_CULL_FACE);
+
+        post.Draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

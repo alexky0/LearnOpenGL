@@ -54,6 +54,9 @@
     <ClCompile Include="DirLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -71,6 +74,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.vert">
@@ -83,6 +89,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="light.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="postprocessing.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="postprocessing.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
