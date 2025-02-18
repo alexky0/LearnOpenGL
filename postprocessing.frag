@@ -25,5 +25,5 @@ void main()
     vec3 color = vec3(0.0);
     for(int i = 0; i < 9; i++)
         color += vec3(texture(screenTexture, TexCoords.st + offsets[i])) * kernel[i];
-    FragColor = texture(screenTexture, TexCoords);
+    FragColor = vec4(color, 1.0);
 }

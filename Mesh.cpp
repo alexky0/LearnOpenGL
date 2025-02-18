@@ -33,7 +33,7 @@ void Mesh::Draw(Shader& shader) const
 		glActiveTexture(GL_TEXTURE0 + i);
 		string name = textures[i].type;
 		shader.set1i(("material." + name).c_str(), i);
-		shader.set1f("material.shininess", 16.0f);
+		shader.set1f("material.shininess", 32.0f);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);
