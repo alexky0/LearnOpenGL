@@ -20,7 +20,8 @@ class PostProcessing
 public:
     Shader shader;
 	unsigned int MSAA, textureMSAA, post, texturePost, RBO, VAO, VBO, width, height;
-    PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag, unsigned int samples);
+    float gamma;
+    PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag, unsigned int samples, float gamma);
     void Setup() const;
     void Draw() const;
 };

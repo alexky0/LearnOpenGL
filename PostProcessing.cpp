@@ -1,12 +1,12 @@
 #include "PostProcessing.h"
 
-PostProcessing::PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag, unsigned int samples) : shader(vert, frag), width(width), height(height)
+PostProcessing::PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag, unsigned int samples, float gamma) : shader(vert, frag), width(width), height(height), gamma(gamma)
 {
 	glGenFramebuffers(1, &MSAA);
 	glBindFramebuffer(GL_FRAMEBUFFER, MSAA);
     glGenTextures(1, &textureMSAA);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureMSAA);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB32F, width, height, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureMSAA, 0);
@@ -30,7 +30,7 @@ PostProcessing::PostProcessing(unsigned int width, unsigned int height, const ch
     glBindFramebuffer(GL_FRAMEBUFFER, post);
     glGenTextures(1, &texturePost);
     glBindTexture(GL_TEXTURE_2D, texturePost);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -55,6 +55,7 @@ void PostProcessing::Draw() const
     shader.Bind();
     shader.set1f("offset_x", 1.0f / width);
     shader.set1f("offset_y", 1.0f / height);
+    shader.set1f("gamma", gamma);
     glBindVertexArray(VAO);
     glDisable(GL_DEPTH_TEST);
     glBindTexture(GL_TEXTURE_2D, texturePost);

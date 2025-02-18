@@ -125,7 +125,7 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
-        GLenum format1 = GL_RED, format2 = GL_RED;
+        int format1 = GL_RED, format2 = GL_RED;
         if (nrComponents == 3) { format1 = GL_SRGB; format2 = GL_RGB; }
         else if (nrComponents == 4) { format1 = GL_SRGB_ALPHA; format2 = GL_RGBA; }
 

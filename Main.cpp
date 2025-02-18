@@ -14,7 +14,10 @@ extern "C" {
 constexpr const char* BACKPACK_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/backpack/backpack.obj";
 constexpr const char* WINDOW_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/window/window.obj";
 
-constexpr unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
+constexpr const unsigned int samples = 8;
+constexpr const float gamma = 2.2f;
+
+constexpr const unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 float currentTime, lastTime, deltaTime;
 unsigned int frameCount = 0;
@@ -49,7 +52,7 @@ static GLFWwindow* WindowInit()
         return nullptr;
     }
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(pow(0.2f, gamma), pow(0.3f, gamma), pow(0.3f, gamma), pow(1.0f, gamma));
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -69,7 +72,7 @@ int main()
     GLFWwindow* window = WindowInit();
     if (!window) return -1;
 
-    PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag", 8);
+    PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag", samples, gamma);
 
     Shader shader("default.vert", "default.frag");
     shader.Geometry("default.geom");
@@ -80,7 +83,7 @@ int main()
     myWindow.Rotate(90, 0, 0);
     myWindow.Move(0, 0, 1);
 
-    DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.98f, 0.84f, 0.11f));
+    DirLight dirLight(glm::vec3(0.2f, 1.0f, 0.3f), glm::vec3(1.0f, 1.0f, 1.0f));
     vector<PointLight> lights = {
         PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 0.0f, 1.0f), 1.2f, 0.08f, 0.02f),
         PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
