@@ -2,6 +2,7 @@
 #include "PointLight.h"
 #include "DirLight.h"
 #include "PostProcessing.h"
+#include "Skybox.h"
 
 using namespace std;
 
@@ -85,6 +86,8 @@ int main()
         PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.3f, 0.09f, 0.025f),
     };
 
+    Skybox skybox("skybox", "skybox.vert", "skybox.frag");
+
     while (!glfwWindowShouldClose(window))
     {
         currentTime = static_cast<float>(glfwGetTime());
@@ -113,6 +116,8 @@ int main()
         glDisable(GL_CULL_FACE);
         myWindow.Update(camera);
         glEnable(GL_CULL_FACE);
+
+        skybox.Update(camera, SCREEN_HEIGHT, SCREEN_WIDTH);
 
         post.Draw();
 
