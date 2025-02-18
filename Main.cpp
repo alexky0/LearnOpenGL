@@ -12,6 +12,7 @@ extern "C" {
 }
 
 constexpr const char* BACKPACK_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/backpack/backpack.obj";
+constexpr const char* WINDOW_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/window/window.obj";
 
 constexpr unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -53,6 +54,8 @@ static GLFWwindow* WindowInit()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glFrontFace(GL_CCW);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
     glfwSetCursorPosCallback(window, CursorPosCallback);
@@ -70,6 +73,9 @@ int main()
     Shader lightShader("light.vert", "light.frag");
 
     Object backpack(BACKPACK_PATH, shader);
+    Object myWindow(WINDOW_PATH, shader);
+    myWindow.Rotate(90, 0, 0);
+    myWindow.Move(0, 0, 1);
 
     DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.98f, 0.84f, 0.11f));
     vector<PointLight> lights = {
@@ -89,8 +95,8 @@ int main()
             glfwSetWindowTitle(window, title.c_str());
             lastTime = currentTime;
             frameCount = 0;
-            camera.Keyboard(window, deltaTime);
         }
+        camera.Keyboard(window, deltaTime);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -103,6 +109,9 @@ int main()
         dirLight.UseLight(shader, "dirLight");
         shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
+        glDisable(GL_CULL_FACE);
+        myWindow.Update(camera);
+        glEnable(GL_CULL_FACE);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
