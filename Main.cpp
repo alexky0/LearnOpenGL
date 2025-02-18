@@ -69,7 +69,7 @@ int main()
     GLFWwindow* window = WindowInit();
     if (!window) return -1;
 
-    PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag");
+    PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag", 8);
 
     Shader shader("default.vert", "default.frag");
     shader.Geometry("default.geom");
@@ -82,9 +82,9 @@ int main()
 
     DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.98f, 0.84f, 0.11f));
     vector<PointLight> lights = {
-        PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(0.0f, 0.0f, 1.0f), 1.5f, 0.07f, 0.017f),
-        PointLight(glm::vec3(-1.299f, -0.75f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
-        PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.3f, 0.09f, 0.025f),
+        PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 0.0f, 1.0f), 1.2f, 0.08f, 0.02f),
+        PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
+        PointLight(glm::vec3(-1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.2f, 0.08f, 0.02f),
     };
 
     Skybox skybox("skybox", "skybox.vert", "skybox.frag");

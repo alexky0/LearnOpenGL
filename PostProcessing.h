@@ -19,8 +19,8 @@ class PostProcessing
 {
 public:
     Shader shader;
-	unsigned int ID, texture, RBO, VAO, VBO, width, height;
-    PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag);
+	unsigned int MSAA, textureMSAA, post, texturePost, RBO, VAO, VBO, width, height;
+    PostProcessing(unsigned int width, unsigned int height, const char* vert, const char* frag, unsigned int samples);
     void Setup() const;
     void Draw() const;
 };
