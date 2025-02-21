@@ -54,7 +54,6 @@ Skybox::Skybox(const char* dir, const char* vert, const char* frag) : shader(ver
 void Skybox::Update(Camera camera, unsigned int height, unsigned int width) const
 {
 	glDepthFunc(GL_LEQUAL);
-
 	shader.Bind();
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);

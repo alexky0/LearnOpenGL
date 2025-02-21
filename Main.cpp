@@ -13,9 +13,10 @@ extern "C" {
 
 constexpr const char* BACKPACK_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/backpack/backpack.obj";
 constexpr const char* WINDOW_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/window/window.obj";
+constexpr const char* FLOOR_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/floor/floor.obj";
 
-constexpr const unsigned int samples = 8;
-constexpr const float gamma = 2.2f;
+constexpr const unsigned int samples = 1;
+constexpr const float gamma = 1.0f;
 
 constexpr const unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -72,11 +73,15 @@ int main()
     GLFWwindow* window = WindowInit();
     if (!window) return -1;
 
+    Skybox skybox("skybox", "skybox.vert", "skybox.frag");
+
     PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag", samples, gamma);
 
-    DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.1f, 0.1f, 0.1f));
+    DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.5f, 0.5f, 0.5f));
     vector<PointLight> lights = {
-        PointLight(glm::vec3(0.0f, 1.0f, 0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.2f, 0.08f, 0.02f),
+        PointLight(glm::vec3(-1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.2f, 0.08f, 0.02f),
+        PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
+        PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 0.1f, 1.0f), 1.2f, 0.08f, 0.02f),
     };
 
     Shader shader("default.vert", "default.frag");
@@ -87,8 +92,8 @@ int main()
     Object myWindow(WINDOW_PATH, shader);
     myWindow.Rotate(90, 0, 0);
     myWindow.Move(0, 0, 1);
-
-    Skybox skybox("skybox", "skybox.vert", "skybox.frag");
+    Object floor(FLOOR_PATH, shader);
+    floor.Move(0, -2, 0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -115,6 +120,7 @@ int main()
         shader.set1i("numPointLights", (int)lights.size());
         shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
+        floor.Update(camera);
         glDisable(GL_CULL_FACE);
         myWindow.Update(camera);
         glEnable(GL_CULL_FACE);

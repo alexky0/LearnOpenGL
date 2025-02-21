@@ -49,6 +49,11 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
+    if (!gl_FrontFacing)
+    {
+        norm = -norm;
+    }
+
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
     for (unsigned int i = 0; i < numPointLights; i++) {
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
