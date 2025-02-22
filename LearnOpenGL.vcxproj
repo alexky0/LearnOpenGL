@@ -179,6 +179,8 @@
     <None Include="light.vert" />
     <None Include="postprocessing.frag" />
     <None Include="postprocessing.vert" />
+    <None Include="shadowmap.frag" />
+    <None Include="shadowmap.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
   </ItemGroup>

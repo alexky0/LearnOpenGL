@@ -22,6 +22,7 @@ public:
 	Object(const char* path, Shader& shader, const glm::vec3& pos = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& rot = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& scl = glm::vec3(1.0f, 1.0f, 1.0f));
 
 	void Update(Camera& camera, const char* viewUni = "view", const char* projUni = "projection");
+	void Update(Camera& camera, Shader shadowMap);
 	void Move(float x, float y, float z);
 	void Rotate(float pitch, float yaw, float roll);
 	void Scale(float x, float y, float z);

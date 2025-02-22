@@ -20,7 +20,7 @@ private:
 	static string get_file_contents(const char* filename);
 public:
 	Shader(const char* vert, const char* frag);
-	void Geometry(const char* geo) const;
+	Shader(const char* vert, const char* geom, const char* frag);
 
 	void Bind() const { glUseProgram(ID); }
 	void Unbind() const { glUseProgram(0); }

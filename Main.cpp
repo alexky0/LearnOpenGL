@@ -15,8 +15,8 @@ constexpr const char* BACKPACK_PATH = "C:/Users/Alex/Downloads/Code/github/perso
 constexpr const char* WINDOW_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/window/window.obj";
 constexpr const char* FLOOR_PATH = "C:/Users/Alex/Downloads/Code/github/personal/LearnOpenGL/floor/floor.obj";
 
-constexpr const unsigned int samples = 1;
-constexpr const float gamma = 1.0f;
+constexpr const unsigned int samples = 8;
+constexpr const float gamma = 2.2f;
 
 constexpr const unsigned int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -73,27 +73,49 @@ int main()
     GLFWwindow* window = WindowInit();
     if (!window) return -1;
 
-    Skybox skybox("skybox", "skybox.vert", "skybox.frag");
-
     PostProcessing post(SCREEN_WIDTH, SCREEN_HEIGHT, "postprocessing.vert", "postprocessing.frag", samples, gamma);
 
-    DirLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.5f, 0.5f, 0.5f));
+    DirLight dirLight(glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0.5f, 0.5f, 0.5f));
     vector<PointLight> lights = {
         PointLight(glm::vec3(-1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 1.0f, 0.0f), 1.2f, 0.08f, 0.02f),
         PointLight(glm::vec3(+0.0f, +1.5f, +0.5f), glm::vec3(1.0f, 0.0f, 0.0f), 1.2f, 0.08f, 0.02f),
         PointLight(glm::vec3(+1.299f, -0.75f, +0.5f), glm::vec3(0.0f, 0.1f, 1.0f), 1.2f, 0.08f, 0.02f),
     };
 
-    Shader shader("default.vert", "default.frag");
-    shader.Geometry("default.geom");
+    Shader shader("default.vert", "default.geom", "default.frag");
     Shader lightShader("light.vert", "light.frag");
 
     Object backpack(BACKPACK_PATH, shader);
     Object myWindow(WINDOW_PATH, shader);
     myWindow.Rotate(90, 0, 0);
-    myWindow.Move(0, 0, 1);
+    myWindow.Move(1, 1, 1);
     Object floor(FLOOR_PATH, shader);
     floor.Move(0, -2, 0);
+
+    Skybox skybox("skybox", "skybox.vert", "skybox.frag");
+
+    unsigned int shadowMapFBO;
+    glGenFramebuffers(1, &shadowMapFBO);
+    unsigned int shadowMapWidth = 4096, shadowMapHeight = 4096;
+    unsigned int shadowMap;
+    glGenTextures(1, &shadowMap);
+    glBindTexture(GL_TEXTURE_2D, shadowMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 50.0f);
+    glm::mat4 lightView = glm::lookAt(20.0f * glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightProjection = orthgonalProjection * lightView;
+    Shader shadowMapProgram("shadowmap.vert", "shadowmap.frag");
 
     while (!glfwWindowShouldClose(window))
     {
@@ -109,12 +131,30 @@ int main()
         }
         camera.Keyboard(window, deltaTime);
 
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        shadowMapProgram.Bind();
+        shadowMapProgram.setMat4fv("lightProjection", lightProjection);
+        glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        backpack.Update(camera, shadowMapProgram);
+        floor.Update(camera, shadowMapProgram);
+        myWindow.Update(camera, shadowMapProgram);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glEnable(GL_CULL_FACE);
+        glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
         post.Setup();
 
         lightShader.Bind();
         for (PointLight& light : lights) light.Render(lightShader, camera);
 
         shader.Bind();
+        shader.setMat4fv("lightProjection", lightProjection);
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, shadowMap);
+        shader.set1i("shadowMap", 2);
         dirLight.UseLight(shader, "dirLight");
         for (unsigned char i = 0; i < lights.size(); i++) lights[i].UseLight(shader, ("pointLights[" + to_string(i) + "]").c_str());
         shader.set1i("numPointLights", (int)lights.size());

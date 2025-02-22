@@ -37,16 +37,17 @@ Shader::Shader(const char* vert, const char* frag)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 }
-
-void Shader::Geometry(const char* geo) const
+Shader::Shader(const char* vert, const char* geom, const char* frag) : Shader(vert, frag)
 {
-	string geometrySourceCode = get_file_contents(geo);
-	const char* geometrySource = geometrySourceCode.c_str();
+    string geometrySourceCode = get_file_contents(geom);
+    const char* geometrySource = geometrySourceCode.c_str();
 
-	int geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-	glShaderSource(geometryShader, 1, &geometrySource, NULL);
-	glCompileShader(geometryShader);
-	glAttachShader(ID, geometryShader);
+    int geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(geometryShader, 1, &geometrySource, NULL);
+    glCompileShader(geometryShader);
+
+    glAttachShader(ID, geometryShader);
 	glLinkProgram(ID);
-	glDeleteShader(geometryShader);
+
+    glDeleteShader(geometryShader);
 }

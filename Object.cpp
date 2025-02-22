@@ -21,6 +21,21 @@ void Object::Update(Camera& camera, const char* viewUni, const char* projUni)
     model.Draw(*shader);
 }
 
+void Object::Update(Camera& camera, Shader shadowMap)
+{
+    if (transformed)
+    {
+        matrix = glm::mat4(1.0f);
+        matrix = glm::translate(matrix, position);
+        matrix = glm::rotate(matrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        matrix = glm::rotate(matrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        matrix = glm::rotate(matrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        matrix = glm::scale(matrix, scale);
+        transformed = false;
+    }
+    shadowMap.setMat4fv("model", matrix);
+    model.Draw(shadowMap);
+}
 
 void Object::Move(float x, float y, float z)
 {

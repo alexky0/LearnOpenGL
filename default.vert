@@ -6,6 +6,7 @@ layout (location = 2) in vec2 aTexCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightProjection;
 
 out DATA
 {
@@ -13,6 +14,7 @@ out DATA
 	vec3 Normal;
 	vec2 TexCoords;
 	mat4 projection;
+	vec4 FragPosLight;
 } data_out;
 
 void main()
@@ -21,5 +23,6 @@ void main()
     data_out.Normal = mat3(transpose(inverse(model))) * aNormal;  
     data_out.TexCoords = aTexCoords;
 	data_out.projection = projection;
+	data_out.FragPosLight = lightProjection * vec4(data_out.FragPos, 1.0);
     gl_Position = view * model * vec4(aPos, 1.0);
 }
