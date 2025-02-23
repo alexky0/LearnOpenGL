@@ -83,7 +83,8 @@ int main()
     };
 
     Shader shader("default.vert", "default.geom", "default.frag");
-    Shader lightShader("light.vert", "light.frag");
+    Shader pointLight("light.vert", "light.frag");
+    Shader dirShadows("shadowmap.vert", "shadowmap.frag");
 
     Object backpack(BACKPACK_PATH, shader);
     Object myWindow(WINDOW_PATH, shader);
@@ -94,29 +95,7 @@ int main()
 
     Skybox skybox("skybox", "skybox.vert", "skybox.frag");
 
-    unsigned int shadowMapFBO;
-    glGenFramebuffers(1, &shadowMapFBO);
-    constexpr const unsigned int shadowMapWidth = 1024, shadowMapHeight = 1024;
-    unsigned int shadowMap;
-    glGenTextures(1, &shadowMap);
-    glBindTexture(GL_TEXTURE_2D, shadowMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 50.0f);
-    glm::mat4 lightView = glm::lookAt(20.0f * glm::vec3(0.0f, 0.5f, 0.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightProjection = orthgonalProjection * lightView;
-    Shader shadowMapProgram("shadowmap.vert", "shadowmap.frag");
-
+    float shadowMapWidth = 1024, shadowMapHeight = 1024;
     unsigned int pointLightDepthMapFBO;
     glGenFramebuffers(1, &pointLightDepthMapFBO);
     unsigned int depthCubemap;
@@ -128,6 +107,7 @@ int main()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
     glBindFramebuffer(GL_FRAMEBUFFER, pointLightDepthMapFBO);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
@@ -185,25 +165,18 @@ int main()
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        shadowMapProgram.Bind();
-        shadowMapProgram.setMat4fv("lightProjection", lightProjection);
-        glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        backpack.Update(camera, shadowMapProgram);
-        floor.Update(camera, shadowMapProgram);
-        myWindow.Update(camera, shadowMapProgram);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        dirLight.ShadowPass(dirShadows, camera);
+        backpack.Update(camera, dirShadows);
+        floor.Update(camera, dirShadows);
+        myWindow.Update(camera, dirShadows);
 
+        glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         post.Setup();
 
-        lightShader.Bind();
-        for (PointLight& light : lights) light.Render(lightShader, camera);
+        pointLight.Bind();
+        for (PointLight& light : lights) light.Render(pointLight, camera);
 
         shader.Bind();
-        shader.setMat4fv("lightProjection", lightProjection);
-        glActiveTexture(GL_TEXTURE0 + 2);
-        glBindTexture(GL_TEXTURE_2D, shadowMap);
         shader.set1i("shadowMap", 2);
         glActiveTexture(GL_TEXTURE0 + 3);
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
