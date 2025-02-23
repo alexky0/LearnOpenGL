@@ -40,6 +40,8 @@ uniform PointLight pointLights[MAX_LIGHTS];
 uniform int numPointLights;
 uniform vec3 viewPos;
 uniform sampler2D shadowMap;
+uniform samplerCube depthCubemap;
+uniform float far_plane;
 
 out vec4 FragColor;
 
@@ -58,7 +60,7 @@ void main()
 
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
     for (unsigned int i = 0; i < numPointLights; i++) {
-        //result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
 
     FragColor = vec4(result, texture(material.diffuse, TexCoords).a);
@@ -117,5 +119,28 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;
     vec3 specular = light.specular * spec *  texture(material.specular, TexCoords).rgb;
 
-    return (ambient + diffuse + specular) * attenuation;
+    vec3 fragToLight = fragPos - light.position;
+    float currentDepth = length(fragToLight);
+    
+    float shadow = 0.0;
+    float bias = 0.05;
+    float samples = 4.0;
+    float offset = 0.1;
+    
+    for(float x = -offset; x < offset; x += offset / (samples * 0.5))
+    {
+        for(float y = -offset; y < offset; y += offset / (samples * 0.5))
+        {
+            for(float z = -offset; z < offset; z += offset / (samples * 0.5))
+            {
+                float closestDepth = texture(depthCubemap, fragToLight + vec3(x, y, z)).r;
+                closestDepth *= far_plane;
+                if(currentDepth - bias > closestDepth)
+                    shadow += 1.0;
+            }
+        }
+    }
+    shadow /= (samples * samples * samples);
+
+    return (ambient + (diffuse + specular) * (1.0 - shadow)) * attenuation;
 }

@@ -177,6 +177,9 @@
     <None Include="default.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
+    <None Include="pointshadow.frag" />
+    <None Include="pointshadow.geom" />
+    <None Include="pointshadow.vert" />
     <None Include="postprocessing.frag" />
     <None Include="postprocessing.vert" />
     <None Include="shadowmap.frag" />

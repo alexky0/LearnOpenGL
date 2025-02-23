@@ -12,4 +12,6 @@ public:
 
     void UseLight(Shader& shader, const char* uniformName) const;
     void Render(Shader& shader, Camera& camera) const;
+
+    glm::vec3 getPosition() const;
 };

@@ -118,5 +118,14 @@
     <None Include="shadowmap.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="pointshadow.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="pointshadow.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="pointshadow.geom">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -21,7 +21,7 @@ void Object::Update(Camera& camera, const char* viewUni, const char* projUni)
     model.Draw(*shader);
 }
 
-void Object::Update(Camera& camera, Shader shadowMap)
+void Object::Update(Camera& camera, Shader& shadowMap)
 {
     if (transformed)
     {
