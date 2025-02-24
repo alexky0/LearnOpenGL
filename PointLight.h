@@ -16,13 +16,15 @@ private:
     static constexpr const float near = 1.0f;
     static constexpr const float far = 50.0f;
     static const glm::mat4 shadowProj;
+    static vector<glm::mat4> shadowTransforms;
+    static vector<PointLight> lights;
     
     glm::vec3 position, ambient, diffuse, specular;
     float constant, linear, quadratic;
 public:
     PointLight(glm::vec3 pos, glm::vec3 col, float c, float l, float q);
 
-    static void ShadowPass(Shader& shader, Camera& camera, vector<Object> objs);
+    static void ShadowPass(Shader& shader, Camera& camera, const vector<Object>& objs);
     static void UseLight(Shader& shader);
     void Render(Shader& shader, Camera& camera) const;
 

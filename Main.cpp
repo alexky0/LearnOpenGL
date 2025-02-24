@@ -93,6 +93,7 @@ int main()
     myWindow.Move(1, 1, 1);
     Object floor(FLOOR_PATH, shader);
     floor.Move(0, -2, 0);
+    std::vector<Object> objects = { backpack, floor, myWindow };
     Skybox skybox("skybox", "skybox.vert", "skybox.frag");
 
     while (!glfwWindowShouldClose(window))
@@ -111,7 +112,7 @@ int main()
 
         glEnable(GL_DEPTH_TEST);
 
-        PointLight::ShadowPass(pointShader, camera, { backpack, floor, myWindow });
+        PointLight::ShadowPass(pointShader, camera, objects);
 
         dirLight.ShadowPass(dirShadows, camera);
         backpack.Update(camera, dirShadows);

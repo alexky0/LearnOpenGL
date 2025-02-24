@@ -1,8 +1,8 @@
 #include "PointLight.h"
 
 const glm::mat4 PointLight::shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near, far);
-static vector<glm::mat4> shadowTransforms;
-static vector<PointLight> lights;
+vector<glm::mat4> PointLight::shadowTransforms;
+vector<PointLight> PointLight::lights;
 
 PointLight::PointLight(glm::vec3 pos, glm::vec3 col, float c, float l, float q)
     : position(pos), ambient(col * 0.2f), diffuse(col), specular(glm::mix(col, glm::vec3(1.0f), 0.3f)), constant(c), linear(l), quadratic(q)
@@ -47,7 +47,7 @@ PointLight::PointLight(glm::vec3 pos, glm::vec3 col, float c, float l, float q)
 
 
 
-void PointLight::ShadowPass(Shader& shader, Camera& camera, vector<Object> objs)
+void PointLight::ShadowPass(Shader& shader, Camera& camera, const vector<Object>& objs)
 {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
