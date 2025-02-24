@@ -85,6 +85,7 @@ int main()
     Shader shader("default.vert", "default.geom", "default.frag");
     Shader pointLight("light.vert", "light.frag");
     Shader dirShadows("shadowmap.vert", "shadowmap.frag");
+    Shader pointShader("pointshadow.vert", "pointshadow.geom", "pointshadow.frag");
 
     Object backpack(BACKPACK_PATH, shader);
     Object myWindow(WINDOW_PATH, shader);
@@ -92,44 +93,7 @@ int main()
     myWindow.Move(1, 1, 1);
     Object floor(FLOOR_PATH, shader);
     floor.Move(0, -2, 0);
-
     Skybox skybox("skybox", "skybox.vert", "skybox.frag");
-
-    float shadowMapWidth = 1024, shadowMapHeight = 1024;
-    unsigned int pointLightDepthMapFBO;
-    glGenFramebuffers(1, &pointLightDepthMapFBO);
-    unsigned int depthCubemap;
-    glGenTextures(1, &depthCubemap);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-    for (unsigned int i = 0; i < 6; ++i) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
-    glBindFramebuffer(GL_FRAMEBUFFER, pointLightDepthMapFBO);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    float aspect = (float)shadowMapWidth / (float)shadowMapHeight;
-    float near = 1.0f;
-    float far = 50.0f;
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
-    std::vector<glm::mat4> shadowTransforms;
-    shadowTransforms.reserve(lights.size() * 6);
-    for (const PointLight& light : lights) {
-        glm::vec3 lightPos = light.getPosition();
-        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
-    }
-    Shader pointShader("pointshadow.vert", "pointshadow.geom", "pointshadow.frag");
 
     while (!glfwWindowShouldClose(window))
     {
@@ -146,24 +110,8 @@ int main()
         camera.Keyboard(window, deltaTime);
 
         glEnable(GL_DEPTH_TEST);
-        glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-        pointShader.Bind();
-        glBindFramebuffer(GL_FRAMEBUFFER, pointLightDepthMapFBO);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        for (size_t i = 0; i < lights.size(); i++)
-        {
-            pointShader.setVec3("lightPos", lights[i].getPosition());
-            pointShader.set1f("far_plane", far);
-            for (unsigned int j = 0; j < 6; j++)
-            {
-                string uniformName = "shadowMatrices[" + std::to_string(j) + "]";
-                pointShader.setMat4fv(uniformName.c_str(), shadowTransforms[i * 6 + j]);
-            }
-            backpack.Update(camera, pointShader);
-            floor.Update(camera, pointShader);
-            myWindow.Update(camera, pointShader);
-        }
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        PointLight::ShadowPass(pointShader, camera, { backpack, floor, myWindow });
 
         dirLight.ShadowPass(dirShadows, camera);
         backpack.Update(camera, dirShadows);
@@ -177,14 +125,8 @@ int main()
         for (PointLight& light : lights) light.Render(pointLight, camera);
 
         shader.Bind();
-        shader.set1i("shadowMap", 2);
-        glActiveTexture(GL_TEXTURE0 + 3);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-        shader.set1i("depthCubemap", 3);
-        shader.set1f("far_plane", far);
         dirLight.UseLight(shader, "dirLight");
-        for (unsigned char i = 0; i < lights.size(); i++) lights[i].UseLight(shader, ("pointLights[" + to_string(i) + "]").c_str());
-        shader.set1i("numPointLights", (int)lights.size());
+        PointLight::UseLight(shader);
         shader.setVec3("viewPos", camera.getPosition());
         backpack.Update(camera);
         floor.Update(camera);
