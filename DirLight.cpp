@@ -34,6 +34,7 @@ void DirLight::UseLight(Shader& shader, const char* uniformName) const {
     shader.setMat4fv("lightProjection", lightProjection);
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, depthMap);
+    shader.set1i("shadowMap", 2);
     string base = string(uniformName) + ".";
     shader.setVec3((base + "direction").c_str(), direction);
     shader.setVec3((base + "ambient").c_str(), ambient);
